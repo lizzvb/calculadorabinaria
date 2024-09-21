@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nightmare Numeric Converter</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Creepster&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather&display=swap');
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Merriweather', serif;
+            color: #B5B5B3;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-family: 'Creepster', cursive;
+            color: #0A1F44;
+            text-shadow: -1px -1px 0 #FFFFFF, 1px -1px 0 #FFFFFF, -1px 1px 0 #FFFFFF, 1px 1px 0 #FFFFFF;
+            font-size: 45px;
+        }
+
+        .bg-image {
+            background-image: url("https://img.freepik.com/fotos-gratis/papel-de-parede-de-halloween-com-mao-de-zumbi_23-2149122586.jpg?t=st=1726581095~exp=1726584695~hmac=5886087f33f67544a14e5dafa2ccf4517c2a370c09a7b292b33329d0ee17ce8b&w=900");
+            filter: blur(8px);
+            height: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+        }
+
+        .bg-text {
+            background-color: rgba(0, 0, 0, 0.4);
+            border: 3px solid #f1f1f1;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            width: 80%;
+            padding: 20px;
+            text-align: center;
+        }
+
+        button {
+            background-color: #8B0000; /* Vermelho Sangue */
+            color: #FFFFFF;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            position: relative; /* Necessário para o efeito de sangue */
+            overflow: hidden; /* Para garantir que o sangue não saia do botão */
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #FF6347; /* Vermelho Tomate */
+        }
+
+        .blood-effect {
+            display: none; /* Oculto por padrão */
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 100%; /* Começa abaixo do botão */
+            width: 10px; /* Largura da imagem */
+            height: auto;
+            animation: drip 0.5s forwards;
+        }
+
+        @keyframes drip {
+            0% {
+                top: 100%; /* Começa na base do botão */
+                opacity: 1;
+            }
+            100% {
+                top: 150%; /* Move o sangue mais para baixo */
+                opacity: 0; /* Desaparece no final */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <audio id="backgroundMusic" src="https://www.televisiontunes.com/uploads/audio/Halloween.mp3" loop></audio>
+    <audio id="convertSound" src="knife-stab-sound-effect-36354.mp3"></audio> <!-- Alterado para o arquivo local -->
+    <div class="bg-image"></div>
+    <div class="bg-text">
+        <center>
+            <h1>Nightmare Numeric Converter</h1>
+        </center>
+        <br><br>
+        <input id="input_valor" type="text" placeholder="Digite o valor">
+        <select id="input_base" onchange="mudarPlaceholder()">
+            <option value="decimal">Decimal</option>
+            <option value="hexadecimal">Hexadecimal</option>
+            <option value="octal">Octal</option>
+            <option value="binario">Binário</option>
+        </select>
+        <br>
+        <h3>Converter para:</h3>
+        <input type="checkbox" id="convertDecimal"><label for="convertDecimal">Decimal</label>
+        <input type="checkbox" id="convertHexadecimal"><label for="convertHexadecimal">Hexadecimal</label>
+        <input type="checkbox" id="convertOctal"><label for="convertOctal">Octal</label>
+        <input type="checkbox" id="convertBinario"><label for="convertBinario">Binário</label>
+        <br><br>
+        <button onclick="converter()">Converter</button>
+        <button onclick="toggleMusic()">Tocar/Pausar Música</button> <!-- Botão para tocar/pausar música -->
+        <img id="bloodEffect" class="blood-effect" src="https://img.freepik.com/free-vector/bleeding-background-template_23-2147495576.jpg" alt="Sangue Escorrendo">
+        <div id="div_resultado"></div>
+        <div id="div_validar"></div>
+    </div>
+
+    <script>
+        // Tocar música de fundo ao abrir a página
+        window.onload = function() {
+            document.getElementById('backgroundMusic').play();
+        };
+
+        function toggleMusic() {
+            var music = document.getElementById('backgroundMusic');
+            if (music.paused) {
+                music.play();
+            } else {
+                music.pause();
+            }
+        }
+
+        function mudarPlaceholder() {
+            var escolha = document.getElementById('input_base').value;
+            var campoEntrada = document.getElementById('input_valor');
+
+            if (escolha === "decimal") {
+                campoEntrada.placeholder = "Digite um valor decimal";
+            } else if (escolha === "hexadecimal") {
+                campoEntrada.placeholder = "Digite um valor hexadecimal";
+            } else if (escolha === "octal") {
+                campoEntrada.placeholder = "Digite um valor octal";
+            } else if (escolha === "binario") {
+                campoEntrada.placeholder = "Digite um valor Binário";
+            }
+        }
+
+        function converter() {
+            var valor = document.getElementById('input_valor').value;
+            var base = document.getElementById('input_base').value;
+
+            // Obtenha os checkboxes
+            var convertDecimal = document.getElementById('convertDecimal').checked;
+            var convertHexadecimal = document.getElementById('convertHexadecimal').checked;
+            var convertOctal = document.getElementById('convertOctal').checked;
+            var convertBinario = document.getElementById('convertBinario').checked;
+
+            // Limpa resultados anteriores
+            var resultadoDiv = document.getElementById('div_resultado');
+            resultadoDiv.innerHTML = '';
+
+            // Converte o valor para decimal, se necessário
+            var decimalValue;
+            if (base === 'decimal') {
+                decimalValue = parseInt(valor, 10);
+            } else if (base === 'hexadecimal') {
+                decimalValue = parseInt(valor, 16);
+            } else if (base === 'octal') {
+                decimalValue = parseInt(valor, 8);
+            } else if (base === 'binario') {
+                decimalValue = parseInt(valor, 2);
+            }
+
+            // Exibe os resultados com base nas checkboxes selecionadas
+            if (convertDecimal) {
+                resultadoDiv.innerHTML += `<p>Decimal: ${decimalValue}</p>`;
+            }
+            if (convertHexadecimal) {
+                resultadoDiv.innerHTML += `<p>Hexadecimal: ${decimalValue.toString(16).toUpperCase()}</p>`;
+            }
+            if (convertOctal) {
+                resultadoDiv.innerHTML += `<p>Octal: ${decimalValue.toString(8)}</p>`;
+            }
+            if (convertBinario) {
+                resultadoDiv.innerHTML += `<p>Binário: ${decimalValue.toString(2)}</p>`;
+            }
+
+            // Toca o som ao converter
+            document.getElementById('convertSound').play();
+
+            // Mostra o efeito de sangue
+            var bloodEffect = document.getElementById('bloodEffect');
+            bloodEffect.style.display = 'block'; // Torna a imagem visível
+            bloodEffect.classList.remove('drip'); // Remove a classe se já estava aplicada
+            void bloodEffect.offsetWidth; // Reflow para reiniciar a animação
+            bloodEffect.classList.add('drip'); // Adiciona a classe de animação
+
+            // Oculta o efeito após a animação
+            setTimeout(() => {
+                bloodEffect.style.display = 'none';
+            }, 500); // Tempo da animação
+        }
+    </script>
+</body>
+</html>
